@@ -22,12 +22,12 @@
 		<mockito.version>1.9.5</mockito.version>
 		<junit.version>4.11</junit.version>
 		<jstl.version>1.2</jstl.version>
-		<!-- Plugins -->
+		<!-- ins -->
 		<jetty.maven.plugin.version>8.1.12.v20130726</jetty.maven.plugin.version>
 		<maven.compiler.plugin.version>2.3.2</maven.compiler.plugin.version>
 		<!-- logging -->
 		<log4j.version>1.2.17</log4j.version>
-		
+		<failOnMissingWebXml>false</failOnMissingWebXml>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -296,6 +296,7 @@
 		<pluginManagement>
 			<plugins>
 				<plugin>
+				
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
 					<configuration>

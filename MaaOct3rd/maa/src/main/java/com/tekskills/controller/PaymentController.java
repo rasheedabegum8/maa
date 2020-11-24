@@ -10,9 +10,7 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
-import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,9 +34,7 @@ import com.tekskills.entity.MeterCostsEntity;
 import com.tekskills.entity.MeterReadingsEntity;
 import com.tekskills.entity.VendorEntity;
 
-@Controller
-@PropertySource("/WEB-INF/Mail.properties")
-public class InvoiceController {
+public class PaymentController {
 	@Autowired
 	private MaaService maaService;
 	
@@ -48,6 +44,7 @@ public class InvoiceController {
 	
 	@Autowired
 	private Environment env;
+	/////GIT CHECK
 	private static final Logger logger = Logger.getLogger(InvoiceController.class);
 	@RequestMapping(value = { "/invoice" }, method = RequestMethod.GET)
 	public String Invoice(HttpServletRequest request, Model model, HttpServletResponse response) throws IOException {
@@ -759,45 +756,53 @@ public String callApinew(@RequestParam("prtyid") int prtyid,@RequestParam("invoi
 	return null;
 	  
 }
+@RequestMapping(value = { "apinewone" }, method = RequestMethod.GET)
 
-@RequestMapping(value = { "/updatePaymentDetails" }, method = RequestMethod.POST)
-public String updatePaymentDetails(HttpServletRequest request, Model model,
-		HttpServletResponse response ) {
-	HttpSession session = request.getSession(true);
-	String paidBy=null;
-	Integer userId=(Integer) session.getAttribute("userid");
-	String paymentid = request.getParameter("ed_paymentid");
-	String unitNo = request.getParameter("ed_unitNo");
-	String prtyid = request.getParameter("prptyid");
-	String month = request.getParameter("ed_month");
-	String paypurpose = request.getParameter("ed_paypurpose");
-	//String InvId = request.getParameter("InvIdHidden");
-	String year = request.getParameter("ed_year");
-	String tenantid_pay = request.getParameter("ed_tnt_id");
-	String ownr_id_pay = request.getParameter("ed_ownr_id");
-	String invAmount = request.getParameter("ed_totamt");
-	String amountPaid = request.getParameter("ed_amtpaid");
-	String dueAmount = request.getParameter("ed_dueamt");
-	//String payType = request.getParameter("tnt_id");
-	String prptyName=request.getParameter("prptyName");
-	
-	if(!tenantid_pay.isEmpty()) {
-		paidBy=request.getParameter("ed_tnt_name");
-	}
-	
-	if(!ownr_id_pay.isEmpty()) {
-		paidBy=request.getParameter("ed_ownr_name");
-	}
-	
-	String payPeriod=month+"/"+year;
-	try {
-	// readingService.updatePayment(unitNo,payPeriod,tenantid_pay,invAmount,amountPaid,dueAmount,ownr_id_pay,userId,prtyid,paypurpose,paidBy,prptyName,paymentid);
-	} catch (Exception e) {
-		logger.error("Error occured in updatePaymentDetails ---", e);
+public String callApinewone(@RequestParam("prtyid") int prtyid,@RequestParam("invoiceid") int invoiceid,
+		@RequestParam("invoiceamt") Double invoiceamt, HttpServletRequest request,HttpServletResponse response,Model model) {
+       try {
+    	  // bankAcntNo,ifscCode,accountname,upiid
+    	   logger.info("invoiceamt--"+invoiceamt+"prtyid--"+prtyid);
+    		String[] getBankdetails = maaService.getBankDetailsByProperty(prtyid);
+			
+			String accountNumber = getBankdetails[0];
+			String ifscCode = getBankdetails[1];
+			String payeename = getBankdetails[2];
+			String upiid = getBankdetails[3];
+			String tn="INV"+invoiceid;
+			String acountnumber="";
+			
+			 //ramakrishnap123@okhdfcbank  upi
+			 //123456789@hdfc0000454.ifsc.npci    //acn   HDFC0000545.ifsc.npci
 
-	}
-	return "redirect:/payments?prtyid="+prtyid+"&prptyName="+prptyName+"";
+			//if(upiid!="" || upiid!=null) {
+			if(!upiid.isEmpty()) {
+				System.out.println("-----------"+upiid);
+    			acountnumber=upiid;
+    		}
+			else if (!accountNumber.isEmpty() && !ifscCode.isEmpty()) {
+			//if(ifscCode!=null&&accountNumber!=null) {
+				ifscCode=ifscCode+".ifsc.npci";
+				String s=accountNumber+"@"+ifscCode;
+	    		acountnumber=s;
+				System.out.println("-----------"+acountnumber);
+			}
+    		else {
+    			ifscCode=ifscCode+".ifsc.npci";
+    			 String s=accountNumber+"@"+ifscCode;
+    			acountnumber=s;
+    		}
+    		logger.info("acountnumber--"+acountnumber+"------payeename--"+payeename);
+    	   model.addAttribute("payeename", payeename);
+    	   model.addAttribute("acountnumber", acountnumber);
+    	   model.addAttribute("invoiceamt", invoiceamt);
+    	   model.addAttribute("tn", tn);
+    	   return "upipay";
+    	} 
+    	catch (Exception e) { 
+    	    logger.error("----apinew-pdf----"+e);
+    	}
+	return null;
+	  
 }
-
-
 }
