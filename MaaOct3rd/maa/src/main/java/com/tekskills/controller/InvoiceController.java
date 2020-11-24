@@ -761,6 +761,45 @@ public String callApinew(@RequestParam("prtyid") int prtyid,@RequestParam("invoi
 	  
 }
 
+@RequestMapping(value = { "/updatePaymentDetails" }, method = RequestMethod.POST)
+public String updatePaymentDetails(HttpServletRequest request, Model model,
+		HttpServletResponse response ) {
+	HttpSession session = request.getSession(true);
+	String paidBy=null;
+	Integer userId=(Integer) session.getAttribute("userid");
+	String paymentid = request.getParameter("ed_paymentid");
+	String unitNo = request.getParameter("ed_unitNo");
+	String prtyid = request.getParameter("prptyid");
+	String month = request.getParameter("ed_month");
+	String paypurpose = request.getParameter("ed_paypurpose");
+	//String InvId = request.getParameter("InvIdHidden");
+	String year = request.getParameter("ed_year");
+	String tenantid_pay = request.getParameter("ed_tnt_id");
+	String ownr_id_pay = request.getParameter("ed_ownr_id");
+	String invAmount = request.getParameter("ed_totamt");
+	String amountPaid = request.getParameter("ed_amtpaid");
+	String dueAmount = request.getParameter("ed_dueamt");
+	//String payType = request.getParameter("tnt_id");
+	String prptyName=request.getParameter("prptyName");
+	
+	if(!tenantid_pay.isEmpty()) {
+		paidBy=request.getParameter("ed_tnt_name");
+	}
+	
+	if(!ownr_id_pay.isEmpty()) {
+		paidBy=request.getParameter("ed_ownr_name");
+	}
+	
+	String payPeriod=month+"/"+year;
+	try {
+	// readingService.updatePayment(unitNo,payPeriod,tenantid_pay,invAmount,amountPaid,dueAmount,ownr_id_pay,userId,prtyid,paypurpose,paidBy,prptyName,paymentid);
+	} catch (Exception e) {
+		logger.error("Error occured in updatePaymentDetails ---", e);
+
+	}
+	return "redirect:/payments?prtyid="+prtyid+"&prptyName="+prptyName+"";
+}
+
 
 
 }
